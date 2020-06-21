@@ -99,8 +99,37 @@ usage: git add [<options>] [--] <pathspec>...
 * 查看变更情况
 ```
 git status  
-```
 
+$ git status
+On branch master  显示当前分支
+Your branch is up to date with 'origin/master'.
+
+Changes to be committed: 这里显示暂存区里为保存到仓库的变更，　可以用ｇit commit 来保存这些变更或者用git reset来撤销这些暂存的变更。
+  (use "git reset HEAD <file>..." to unstage)
+
+        modified:   git_tips.md
+        new file:   newfile
+
+Changes not staged for commit: 这里是从工作区到暂存区之间的变更，需要执行git add来保存本地变更到暂存区或者用git checkout -- <file>来撤销本地的更改。
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   git_tips.md
+
+```
+* 查看变更情况- 简略形式
+```
+git status -s 或者--short 
+```
+  它直接显示两列，第一列是状态，第二列是文件名
+ ```
+ $ git status -s
+ M README   （README 文件在工作区已修改但尚未暂存）
+MM Rakefile 文件已修，暂存后又作了修改
+A  lib/git.rb 新添加到暂存区中的文件
+M  lib/simplegit.rb （文件已修改且已暂存）
+?? LICENSE.txt 新添加的文件，未跟踪
+ ``` 
 * 查看当前工作在哪个分支上 
 ```
 git branch -v  
