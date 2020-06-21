@@ -1,28 +1,59 @@
-#### Git 最小配置
-* 某账号下所有的 Git 仓库都有效
+## Git 使用前的最小配置 
+
+git的配置分3个级别，各项级别的配置分别保存在不同文件中。可以在git config 命令里加上如下选项来区分：  
+   * --system（所有用户）  /etc/gitconfig 文件
+   * --global(当前用户， 适用于该用户的所有仓库)
+   * --local（仅适用于当前所在仓库） 
+
+注意如果某个设置出现在不同级别中，则具体的级别里的值会覆盖更一般的级别里的值，即local会覆盖global，global会覆盖system。 
+
+* 需要设置当前用户的用户名和邮箱以方便显示作者和沟通联系。此设置对该用户所有仓库有效。
 ```
 git config --global user.name '您的名称' 
 git config --global user.email '您的Email'
 ```
 
-* 只对当前 Git 仓库有效 
+* 加--local选项后设置只对当前 Git 仓库有效，即可以为某个仓库单独设置这两项。 
 ```
 git config --local user.name '您的名称'
 git config --local user.email '您的Email'
 ```
 
-#### 查看 Git 的配置
+### 查看 Git 的配置
+* 查看所有配置项 (包括--system, --global, --local各级内容)
+```
+git config --list 
+```
+* 查看 system 类型的配置项 
+```
+git config --system --list  对应/etc/gitconfig 文件，需要管理员权限操作 (后两个--参数位置可以互换)  
+```
 * 查看 global 类型的配置项 
 ```
-git config --global --list  
+git config --global --list 对应 ~/.gitconfig 或 ~/.config/git/config 文件
 ```
 
 * 查看只作用于当前仓库的配置项 
 ```
-git config --local --list  
+git config --local --list  对应该仓库下的 .git/config文件
 ```
 
-#### 清除 Git 的配置
+* 查看某一项配置,例如用户名
+```
+git config user.name 
+```
+* 还可以加一个级别选项来过滤配置，如下面例子视图查看本仓库内该配置，如果不存在则返回空
+```
+git config --local user.name  对应该仓库下的 .git/config文件
+```
+* 如果某个配置出现在多个级别中，则会显示按照优先级而被采纳的配置值。此时可以加--show-origin选项来查看该项配置来自哪个配置文件/级别。例如下面例子查看core.filemode这个配置：
+```
+git config --show-origin core.filemode
+显示：file:.git/config        false
+
+```
+
+### 清除 Git 的配置
 * 清除 global 类型的配置项   
 ```
 git config --unset  --global 某个配置项 
@@ -32,8 +63,39 @@ git config --unset  --global 某个配置项
 ```
 git config --unset --local 某个配置项 
 ```
+## Git 使用帮助 
+有三种等价的方法可以找到 Git 命令的综合手册（manpage），会调用本地浏览器打开该帮助网页
+* git help \<verb\>
+* git \<verb\> --help 我个人喜欢这种，符合Linux帮助规范
+* man git-\<verb\>
 
-#### 本地基本操作
+如果你不需要全面的手册，只需要可用选项的快速参考，那么可以用 -h 选项获得更简明的 “help” 输出：
+```
+git add -h
+usage: git add [<options>] [--] <pathspec>...
+
+    -n, --dry-run         dry run
+    -v, --verbose         be verbose
+```
+
+## 本地基本操作
+### 获取 Git 仓库
+通常有两种获取 Git 项目仓库的方式：
+
+1. 将尚未进行版本控制的本地目录转换为 Git 仓库；  
+使用git init, 将在本地文件夹内生成.git文件夹
+
+2. 从其它服务器 克隆 一个已存在的 Git 仓库。  
+使用git clone url \[本地仓库名\] 命令，(本地仓库名可以省略)。  
+**注意**： 此时**不需要**先运行git init，因为clone完毕后在该仓库的根文件夹下就有一个.git文件夹。 git clone相当于连续执行了git init, git add remote URL, git fetch, git checkout这四个命令，可以看到不再需要git init。此处可以参考这个链接：[Do I need to do 'git init' before doing 'git clone' on a project
+](https://stackoverflow.com/questions/22724921/do-i-need-to-do-git-init-before-doing-git-clone-on-a-project "Do I need to do 'git init' before doing 'git clone' on a project")
+
+### 跟踪版本变更
+* 首先了解基本的3个区域： 
+   1. 工作区： 当前用户操作的文件目录。工作目录下的每一个文件都不外乎这两种状态：*已跟踪* 或 *未跟踪*。 已跟踪的文件是指那些被纳入了版本控制的文件，在上一次快照中有它们的记录，在工作一段时间后， 它们的状态可能是*未修改*，*已修改*或*已放入暂存区*。简而言之，已跟踪的文件就是 Git 已经知道的文件。 工作目录中除已跟踪文件外的其它所有文件都属于未跟踪文件，它们既不存在于上次快照的记录中，也没有被放入暂存区。 初次克隆某个仓库的时候，工作目录中的所有文件都属于已跟踪文件，并处于未修改状态，因为 Git 刚刚检出了它们， 而你尚未编辑过它们。
+   2. 暂存区： 保存暂时更改，稍后可以将此更改保存到仓库以永久保存该修改，也可以放弃该暂时更改。
+   3. 仓库区： 保存确认的版本更改
+
 * 查看变更情况
 ```
 git status  
@@ -51,22 +113,22 @@ git checkout 指定分支
 
 * 把当前目录及其子目录下所有变更都加入到暂存区
 ```
-git add .  
+git add .  注意这里不需要加-R等类似Linux命令参数来迭代获取所有文件夹内容
 ```
 
-* 把仓库内所有变更都加入到暂存区 
+* 把仓库内所有变更都加入到暂存区， **这个很实用，避免手动添加多个目录** 
 ```
 git add -A  
 ```
 
-* 把指定文件添加到暂存区
+* 把指定的某些文件添加到暂存区 用空格隔开
 ```
 git add 文件1 文件2 文件3  
 ```
 
-* 创建正式的 commit 
+* 创建正式的 commit，要加注释消息 
 ```
-git commit  
+git commit  -m 'commit message'
 ```
 
 * 比较某文件工作区和暂存区的差异 
@@ -74,12 +136,12 @@ git commit
 git diff 某文件
 ```
 
-* 比较某文件暂存区和 HEAD 的差异
+* 比较某文件暂存区和 HEAD（当前库存储） 的差异
 ```
 git diff --cached 某文件
 ```
 
-* 比较某文件工作区和 HEAD 的差异
+* 比较某文件工作区和 HEAD 的差异 注意这里HEAD没有--
 ```
 git diff HEAD 某文件
 ```
